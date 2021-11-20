@@ -31,6 +31,12 @@ public class PlayerStatesBehaviour
 		_currentState.Execute(this);
 	}
 
+	public void ShootingState()
+	{
+		_currentState = new PlayerShootState();
+		_currentState.Execute(this);
+	}
+
 	public PlayerStates GetPlayerState()
 	{
 		return _playerState;

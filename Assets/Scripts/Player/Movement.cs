@@ -11,7 +11,14 @@ public class Movement : MonoBehaviour
 	private int _currentPoint = 0;
 	private PlayerStatesBehaviour _stateMachine = new PlayerStatesBehaviour();
 	private Camera _camera;
-    void Start()
+
+	public PlayerStatesBehaviour StateMachine
+	{
+		get { return _stateMachine; }
+	}
+
+
+    private void Start()
     {
 		_camera = Camera.main;
 		_agent = GetComponent<NavMeshAgent>();
@@ -24,18 +31,11 @@ public class Movement : MonoBehaviour
 		_camera.transform.position = this.transform.position - new Vector3(0, -2, 5);
 	}
 
-	private void OnMouseDown()
+	public void StartMove()
 	{
-		switch (_stateMachine.GetPlayerState())
-		{
-			case (PlayerStates.Idle):
-				StartCoroutine(Move());
-				break;
-			case (PlayerStates.Running):
-				Debug.Log("Бежит");
-				break;
-		}
+		StartCoroutine(Move());
 	}
+
 
 	private IEnumerator Move()
 	{
@@ -50,7 +50,7 @@ public class Movement : MonoBehaviour
 		if (other.tag == "Waypoint")
 		{
 			Debug.Log("Точка достигнута");
-			_stateMachine.IdleState();
+			_stateMachine.ShootingState();
 		}
 
 		if (_currentPoint == _waypoints.Length - 1)
