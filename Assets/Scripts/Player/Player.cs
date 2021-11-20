@@ -4,16 +4,18 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-	[SerializeField] private Bullet _bullet;
+	[SerializeField] private Weapon _weapon;
 	[SerializeField] private Movement _movementObject;
-	private Camera _camera;
 
-	private void Start()
-	{
-		_camera = Camera.main;
-	}
+	
 	private void Update()
 	{
+		RaycastHit rd;
+		if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition),out rd))
+		{
+			Debug.DrawLine(_movementObject.transform.position, rd.transform.position);
+		}
+		
 		if(Input.GetKeyDown(KeyCode.Mouse0))
 		{
 			switch (_movementObject.StateMachine.GetPlayerState())
@@ -26,11 +28,10 @@ public class Player : MonoBehaviour
 					break;
 				case (PlayerStates.Shooting):
 					RaycastHit ray;
-					if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out ray))
+					if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ray))
 					{
-						Debug.Log(ray.transform.position);
-						var obj = Instantiate(_bullet, _movementObject.transform.position, Quaternion.identity, transform.parent);
-						obj.Shoot(ray.transform.position);
+						Debug.DrawLine(_movementObject.transform.position, ray.transform.position);
+						_weapon.Shot(ray.transform.position);
 					}
 					break;
 			}
