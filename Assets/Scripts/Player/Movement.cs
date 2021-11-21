@@ -12,6 +12,9 @@ public class Movement : MonoBehaviour
 	private PlayerStatesBehaviour _stateMachine = new PlayerStatesBehaviour();
 	private Camera _camera;
 
+	public delegate void PointCheching(Waypoint point);
+	public PointCheching Check;
+
 	public PlayerStatesBehaviour StateMachine
 	{
 		get { return _stateMachine; }
@@ -33,11 +36,11 @@ public class Movement : MonoBehaviour
 
 	public void StartMove()
 	{
-		StartCoroutine(Move());
+		StartCoroutine(Moving());
 	}
 
 
-	private IEnumerator Move()
+	private IEnumerator Moving()
 	{
 		_stateMachine.RunningState();
 		_currentPoint++;
@@ -47,10 +50,11 @@ public class Movement : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (other.tag == "Waypoint")
+		if (other.TryGetComponent(out Waypoint point))
 		{
 			Debug.Log("Точка достигнута");
 			_stateMachine.ShootingState();
+			Check?.Invoke(point);
 		}
 
 		if (_currentPoint == _waypoints.Length - 1)
