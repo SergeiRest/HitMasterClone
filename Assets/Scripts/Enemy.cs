@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour
 		{
 			_states = EnemyStates.Dead;
 			_curentPool.Remove(this);
+			gameObject.SetActive(false);
 		}
 	}
 }

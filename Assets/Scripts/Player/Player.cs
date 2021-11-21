@@ -4,46 +4,55 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-	[SerializeField] private Weapon _weapon;
 	[SerializeField] private Movement _movementObject;
+	[SerializeField] private PlayerAnims _animations;
+	[SerializeField] private Level _level;
+	[SerializeField] private WeaponSelector _selector;
+	private Weapon _weapon;
+	private PlayerStatesBehaviour _stateMachine = new PlayerStatesBehaviour();
 
-	public Movement MoveObject
+	public PlayerStatesBehaviour StateMachine
 	{
 		get
 		{
-			return _movementObject;
+			return _stateMachine;
 		}
 	}
+
 	private void Awake()
 	{
+		_movementObject.Finished += _level.Reload;
 		_movementObject.Check += CheckWaypoint;
+	}
+
+	private void Start()
+	{
+		_weapon = _selector.SelectWeapon();
+		_stateMachine.Init();
 	}
 
 	private void Update()
 	{
-		//RaycastHit rd;
-		//Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		//if (Physics.Raycast(ray, out rd))
-		//{
-		//	Debug.DrawLine(_movementObject.transform.position, rd.transform.position);
-		//}
-
 		if (Input.GetKeyDown(KeyCode.Mouse0))
 		{
-			switch (_movementObject.StateMachine.GetPlayerState())
+			switch (_stateMachine.GetPlayerState())
 			{
 				case (PlayerStates.Idle):
 					_movementObject.StartMove();
+					_stateMachine.RunningState();
+					_animations.SetRunAnimation();
 					break;
 				case (PlayerStates.Running):
 					Debug.Log("Бежит");
 					break;
 				case (PlayerStates.Shooting):
-					RaycastHit ray;
-					if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out ray))
+					Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+					RaycastHit pos;
+					Vector3 shotPosition;
+					if (Physics.Raycast(ray, out pos))
 					{
-						Debug.DrawLine(_movementObject.transform.position, ray.transform.position);
-						_weapon.Shot(ray.transform.position);
+						shotPosition = new Vector3(pos.point.x, pos.point.y, pos.point.z);
+						_weapon.Shot(shotPosition);
 					}
 					break;
 			}
@@ -52,7 +61,17 @@ public class Player : MonoBehaviour
 
 	private void CheckWaypoint(Waypoint current)
 	{
-		if (current.EnemiesPool.GetEnemiesLength() > 0)
+		_animations.SetIdleAnimation();
+		if (current.EnemiesPool.GetEnemiesLength() == 0)
+		{
+			_stateMachine.IdleState();	
+		}
+		else
+		{
 			current.Init(this);
+			_stateMachine.ShootingState();
+			Debug.Log(current.EnemiesPool.GetEnemiesLength());
+		}
+			
 	}
 }

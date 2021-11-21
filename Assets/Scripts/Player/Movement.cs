@@ -9,24 +9,20 @@ public class Movement : MonoBehaviour
 	[SerializeField] private Transform[] _waypoints;
 	private NavMeshAgent _agent;
 	private int _currentPoint = 0;
-	private PlayerStatesBehaviour _stateMachine = new PlayerStatesBehaviour();
 	private Camera _camera;
 
-	public delegate void PointCheching(Waypoint point);
+	public delegate void PointCheching(Waypoint point); // Делегат на проверку вейпоинта
 	public PointCheching Check;
 
-	public PlayerStatesBehaviour StateMachine
-	{
-		get { return _stateMachine; }
-	}
-
+	public delegate void LevelFinished();
+	public LevelFinished Finished;
 
     private void Start()
     {
 		_camera = Camera.main;
+		_camera.transform.rotation = Quaternion.Euler(new Vector3(20, 0, 0));
 		_agent = GetComponent<NavMeshAgent>();
-		this.transform.position = _waypoints[_currentPoint].position;
-		_stateMachine.Init();
+		transform.position = _waypoints[_currentPoint].position + new Vector3(0, 3, 0);
     }
 
 	private void Update()
@@ -42,7 +38,6 @@ public class Movement : MonoBehaviour
 
 	private IEnumerator Moving()
 	{
-		_stateMachine.RunningState();
 		_currentPoint++;
 		_agent.SetDestination(_waypoints[_currentPoint].position);
 		yield return null;
@@ -52,12 +47,14 @@ public class Movement : MonoBehaviour
 	{
 		if (other.TryGetComponent(out Waypoint point))
 		{
-			Debug.Log("Точка достигнута");
-			_stateMachine.ShootingState();
+			Debug.Log($"Точка достигнута {point.gameObject.name}");
 			Check?.Invoke(point);
 		}
 
 		if (_currentPoint == _waypoints.Length - 1)
+		{
 			Debug.Log("Финиш");
+			Finished?.Invoke();
+		}			
 	}
 }

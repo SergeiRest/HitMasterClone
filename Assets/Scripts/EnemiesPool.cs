@@ -5,7 +5,6 @@ using UnityEngine;
 public class EnemiesPool : MonoBehaviour
 {
 	[SerializeField] private List<Enemy> _livingEnemies;
-	private List<Enemy> _deathEnemies;
 	public delegate void EnemyDead();
 	public EnemyDead EnemyDeadBehaviour;
 

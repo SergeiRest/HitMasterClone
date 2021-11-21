@@ -10,7 +10,6 @@ public class Waypoint : MonoBehaviour
 	public void Init(Player player)
 	{
 		_player = player;
-		Debug.Log(_player.MoveObject.StateMachine.GetPlayerState());
 		Enable();
 	}
 
@@ -18,7 +17,7 @@ public class Waypoint : MonoBehaviour
 	{
 		if (EnemiesPool.GetEnemiesLength() == 0)
 		{			
-			_player.MoveObject.StateMachine.IdleState();
+			_player.StateMachine.IdleState();
 			Disable();
 		}
 	}
